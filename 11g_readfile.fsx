@@ -22,12 +22,12 @@ let scale = 1.0
 // convert coordiantes to cartesian
 
 let SphericalToCartesian (long:float, lat:float, r:float) =
-  let degToRad (deg:float) =
-    (deg/360.0)*(2.0*System.Math.PI)
-  let x = r*sin(degToRad(lat+90.0))*cos(degToRad(long))
-  let y = r*sin(degToRad(lat+90.0))*sin(degToRad(long))
-  let z = r*cos(degToRad(lat+90.0))
-  Vector (x,y,z)
+    let degToRad (deg:float) =
+        (deg/360.0)*(2.0*System.Math.PI)
+    let x = r*sin(degToRad(lat+90.0))*cos(degToRad(long))
+    let y = r*sin(degToRad(lat+90.0))*sin(degToRad(long))
+    let z = r*cos(degToRad(lat+90.0))
+    Vector (x,y,z)
 
 type planet() =
     let mutable route: Vector list = []
@@ -41,8 +41,8 @@ type planet() =
         for vector in route do
             printfn "%A" (vector.tupleConvert())
     member this.calculateStartSpeed() =
-       match (route.[pos], route.[pos+1]) with
-       | (vector1: Vector, vector2: Vector) ->(((vector2 - vector1).absoluteVal())*scale)
+        match (route.[pos], route.[pos+1]) with
+        | (vector1: Vector, vector2: Vector) -> (((vector2 - vector1).absoluteVal())*scale)
 
     member this.acceleration (t:float) =
         //-1*(((0.0002959122)/(pown (this.position(t).absoluteVal) 3))*this.position)
@@ -55,7 +55,7 @@ type planet() =
 
     member this.velocity (t:float) =
         match t with
-        | y when y<0.0 -> this.calculateStartSpeed()
+        | y when y < 0.0 -> this.calculateStartSpeed()
         | x ->
             this.velocity + this.acceleration(x-delta)*delta
 
