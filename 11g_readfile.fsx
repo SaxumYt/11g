@@ -42,7 +42,7 @@ type planet() =
             printfn "%A" (vector.tupleConvert())
     member this.calculateStartSpeed() =
        match (route.[pos], route.[pos+1]) with
-       | (vector1: Vector, vector2: Vector) ->(((vector1 - vector2).absoluteVal())*scale)
+       | (vector1: Vector, vector2: Vector) ->(((vector2 - vector1).absoluteVal())*scale)
 
     member this.acceleration (t:float) =
         //-1*(((0.0002959122)/(pown (this.position(t).absoluteVal) 3))*this.position)
@@ -65,29 +65,29 @@ type planet() =
     member this.test() =
        printfn "%A\n%A\n%A\n%A" (route.[0].tupleConvert()) (route.[90].tupleConvert()) (route.[180].tupleConvert()) (route.[270].tupleConvert())
 
-    member this.loadDataFromFile (filename: string, coords:int) =
+    member this.loadDataFromFile (filename: string) =
         let reader = System.IO.File.OpenText filename
         let mutable data = []
         let mutable cleandata = []
         while not(reader.EndOfStream) do
+            //Kør hele listen med data igennem
             if reader.ReadLine () = "$$SOE" then
-                  // antal koordinater der gemmes
-                  for i=0 to coords-1 do
+                  while not(reader.ReadLine() = "$$EOE") do
                       cleandata <- []
-                        // laver string til liste
+                      // laver string til liste
                       let linje = reader.ReadLine().Split ' '
                       for value in linje do
-                        // fjerner tomme elementer
-                        if value.Length <> 0 then
-                            cleandata <- cleandata @ [value]
+                          // fjerner tomme elementer
+                          if value.Length <> 0 then
+                              cleandata <- cleandata @ [value]
                       // konverterer data og gemmer i listen  FILFORMAT: TID LONG LAT R
 
                       //printfn "%A %A %A %A" (float cleandata.[1]) cleandata.[2] cleandata.[3]
                       data <- data @ [(SphericalToCartesian((float cleandata.[1]), (float cleandata.[2]) ,(float cleandata.[3])))]
                       ()
             else
-              ()
-         // gem i planet
+                ()
+        // gem i planet
         this.setRoute(data)
         //printfn "%A" data      // clean data gemmes korrekt, men "data" virker ikke
         reader.Close()
@@ -106,7 +106,7 @@ type planet() =
 //dataToRoute (Pluto, "data/Pluto.txt", 1500)
 
 let Earth = new planet()
-Earth.loadDataFromFile("Earth.txt", 500)
+Earth.loadDataFromFile("Earth.txt")
 
 Earth.showRoute()
 //Earth.calculateSpeed()
