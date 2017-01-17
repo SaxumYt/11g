@@ -1,22 +1,17 @@
-type Vector (x:float, y:float, z:float) = class
+type Vector (x, y, z) = class
     static member (+) (vector1: Vector, vector2: Vector)=
-        Vector (vector1.x + vector2.x, vector1.y + vector2.y, vector1.z + vector2.z)
-    static member (-) (vector1: Vector, vector2: Vector)=
-        Vector (vector1.x - vector2.x, vector1.y - vector2.y, vector1.z - vector2.z)
+        (vector1.x + vector2.x, vector1.y + vector2.y, vector1.z + vector2.z)
     static member ( * ) (a, vector: Vector)=
-        Vector (vector.x*a, vector.y*a, vector.z*a)
+        (vector.x*a, vector.y*a, vector.z*a)
     static member ( * ) (vector1: Vector, vector2: Vector)=
-        Vector (vector1.x * vector2.x, vector1.y * vector2.y, vector1.z * vector2.z)
-    member this.absoluteVal() =
-        sqrt(float (pown (this.x) 2) + float (pown (this.y) 2) + float (pown (this.z) 2))
-    member this.tupleConvert() =
-        (this.x, this.y, this.z)
+        (vector1.x * vector2.x, vector1.y * vector2.y, vector1.z * vector2.z)
+    static member absoluteVal (vector:Vector) =
+         sqrt ( (float ((pown vector.x 2) + (pown vector.y 2) + (pown vector.z 2)))   )
     member this.x = x
     member this.y = y
     member this.z = z
-
-
 end
+
 
 
 
@@ -29,59 +24,38 @@ let SphericalToCartesian (long:float, lat:float, r:float) =
   let x = r*sin(degToRad(lat+90.0))*cos(degToRad(long))
   let y = r*sin(degToRad(lat+90.0))*sin(degToRad(long))
   let z = r*cos(degToRad(lat+90.0))
-  Vector (x,y,z)
+  (x,y,z)
 
 type planet() =
-    let mutable route: Vector list = []
+    let mutable route = []
     let mutable pos = 0
-    let mutable delta = 0.1
-    member this.Delta
-        with get() = delta
-        and set(value) = delta <- value
     member this.setRoute(newroute) = route <- newroute
-    member this.showRoute() =
-        for vector in route do
-            printfn "%A" (vector.tupleConvert())
-    member this.calculateStartSpeed() =
+    member this.showRoute() = printfn "Planets route:\n %A" route
+    member this.calculateSpeed() =
        match (route.[pos], route.[pos+1]) with
-       | (vector1: Vector, vector2: Vector) ->(((vector1 - vector2).absoluteVal())*scale)
-
-    member this.acceleration (t:float) =
-        //-1*(((0.0002959122)/(pown (this.position(t).absoluteVal) 3))*this.position)
-        ()
-
-    member this.position (t:float) =
-        match t with
-        | y when y<0.0 -> route.[0]
-        | x -> this.position(t-delta) + this.velocity(t-delta)*delta
-
-    member this.velocity (t:float) =
-        match t with
-        | y when y<0.0 -> this.calculateStartSpeed()
-        | x ->
-            this.velocity + this.acceleration(x-delta)*delta
-
+       | ((x1,y1,z1),(x2,y2,z2)) -> printfn "%A" (scale*(    sqrt ( (pown (x2-x1) 2)   +    (pown (y2-y1) 2)  + (pown (z2-z1) 2) )  ))
 
 
        // bestem afstand her
     member this.test() =
-       printfn "%A\n%A\n%A\n%A" (route.[0].tupleConvert()) (route.[90].tupleConvert()) (route.[180].tupleConvert()) (route.[270].tupleConvert())
+       printfn "%A\n%A\n%A\n%A" route.[0] route.[90] route.[180] route.[270]
 
     member this.loadDataFromFile (filename: string, coords:int) =
         let reader = System.IO.File.OpenText filename
         let mutable data = []
-        let mutable cleandata = []
-        while not(reader.EndOfStream) do
+        while not(reader.EndOfStream) || reader.ReadLine() = "$$EOE" do
             if reader.ReadLine () = "$$SOE" then
                   // antal koordinater der gemmes
                   for i=0 to coords-1 do
-                      cleandata <- []
+                      let mutable cleandata = []
                         // laver string til liste
                       let linje = reader.ReadLine().Split ' '
                       for value in linje do
                         // fjerner tomme elementer
                         if value.Length <> 0 then
                             cleandata <- cleandata @ [value]
+                        else
+                           ()
                       // konverterer data og gemmer i listen  FILFORMAT: TID LONG LAT R
 
                       //printfn "%A %A %A %A" (float cleandata.[1]) cleandata.[2] cleandata.[3]
@@ -108,7 +82,7 @@ type planet() =
 //dataToRoute (Pluto, "data/Pluto.txt", 1500)
 
 let Earth = new planet()
-Earth.loadDataFromFile("Earth.txt", 500)
+Earth.loadDataFromFile("data/Earth.txt", 500)
 
 Earth.showRoute()
 //Earth.calculateSpeed()
