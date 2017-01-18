@@ -93,7 +93,7 @@ type planet() =
     let mutable route: Vector list = []
     let mutable pos = 0
     let mutable count = 0
-    let mutable delta = 100.0
+    let mutable delta = 1.0
     member this.Delta
         with get() = delta
         and set(value) = delta <- value
