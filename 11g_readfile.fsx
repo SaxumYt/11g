@@ -1,12 +1,15 @@
 type Vector (x:float, y:float, z:float) = class
     static member (+) (vector1: Vector, vector2: Vector)=
         Vector (vector1.x + vector2.x, vector1.y + vector2.y, vector1.z + vector2.z)
+
     static member (-) (vector1: Vector, vector2: Vector)=
         Vector (vector1.x - vector2.x, vector1.y - vector2.y, vector1.z - vector2.z)
     static member ( * ) (a, vector: Vector)=
         Vector (vector.x*a, vector.y*a, vector.z*a)
+
     static member ( * ) (vector1: Vector, vector2: Vector)=
         Vector (vector1.x * vector2.x, vector1.y * vector2.y, vector1.z * vector2.z)
+
     member this.absoluteVal() =
         sqrt(float (pown (this.x) 2) + float (pown (this.y) 2) + float (pown (this.z) 2))
     member this.tupleConvert() =
@@ -42,23 +45,22 @@ type planet() =
             printfn "%A" (vector.tupleConvert())
     member this.calculateStartSpeed() =
         match (route.[pos], route.[pos+1]) with
-        | (vector1: Vector, vector2: Vector) -> (((vector2 - vector1).absoluteVal())*scale)
+        | (vector1: Vector, vector2: Vector) -> vector2 - vector1
 
-    member this.acceleration (t:float) =
-        //-1*(((0.0002959122)/(pown (this.position(t).absoluteVal) 3))*this.position)
-        ()
+    member this.acceleration (t: float)=
+        let position: Vector = this.position(t)
+        let value = 2.9591/(pown (position.absoluteVal()) 3)
+        value * position
 
     member this.position (t:float) =
         match t with
-        | y when y<0.0 -> route.[0]
-        | x -> this.position(t-delta) + this.velocity(t-delta)*delta
+        | y when y <0.0 -> route.[0]
+        | x -> this.position(t-delta) + (delta*this.velocity(t-delta))
 
     member this.velocity (t:float) =
         match t with
-        | y when y < 0.0 -> this.calculateStartSpeed()
-        | x ->
-            this.velocity + this.acceleration(x-delta)*delta
-
+        | 0.0 -> this.calculateStartSpeed()
+        | x -> this.velocity(t-delta) + (delta*this.position(t-delta))
 
 
        // bestem afstand her
@@ -91,8 +93,6 @@ type planet() =
         this.setRoute(data)
         //printfn "%A" data      // clean data gemmes korrekt, men "data" virker ikke
         reader.Close()
-
-
 
 
 
