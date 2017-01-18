@@ -35,6 +35,7 @@ let SphericalToCartesian (long:float, lat:float, r:float) =
 type planet() =
     let mutable route: Vector list = []
     let mutable pos = 0
+    let mutable count = 0
     let mutable delta = 0.1
     member this.Delta
         with get() = delta
@@ -43,6 +44,7 @@ type planet() =
     member this.showRoute() =
         for vector in route do
             printfn "%A" (vector.tupleConvert())
+(*
     member this.calculateStartSpeed() =
         match (route.[pos], route.[pos+1]) with
         | (vector1: Vector, vector2: Vector) -> vector2 - vector1
@@ -62,36 +64,36 @@ type planet() =
         | 0.0 -> this.calculateStartSpeed()
         | x -> this.velocity(t-delta) + (delta*this.position(t-delta))
 
-
+*)
        // bestem afstand her
     member this.test() =
-       printfn "%A\n%A\n%A\n%A" (route.[0].tupleConvert()) (route.[90].tupleConvert()) (route.[180].tupleConvert()) (route.[270].tupleConvert())
+        printfn "%A" (route.Length)
+        printfn "%A\n%A\n%A\n%A" (route.[0].tupleConvert()) (route.[90].tupleConvert()) (route.[180].tupleConvert()) (route.[270].tupleConvert())
 
     member this.loadDataFromFile (filename: string) =
         let reader = System.IO.File.OpenText filename
         let mutable data = []
+        let mutable linje = [||]
         let mutable cleandata = []
         while not(reader.EndOfStream) do
             //Kør hele listen med data igennem
             if reader.ReadLine () = "$$SOE" then
-                  while not(reader.ReadLine() = "$$EOE") do
-                      cleandata <- []
-                      // laver string til liste
-                      let linje = reader.ReadLine().Split ' '
-                      for value in linje do
-                          // fjerner tomme elementer
-                          if value.Length <> 0 then
-                              cleandata <- cleandata @ [value]
-                      // konverterer data og gemmer i listen  FILFORMAT: TID LONG LAT R
-
-                      //printfn "%A %A %A %A" (float cleandata.[1]) cleandata.[2] cleandata.[3]
-                      data <- data @ [(SphericalToCartesian((float cleandata.[1]), (float cleandata.[2]) ,(float cleandata.[3])))]
-                      ()
+                let mutable currentLine = reader.ReadLine()
+                while not(currentLine = "$$EOE") do
+                    linje <- [||]
+                    cleandata <- []
+                    // laver string til liste
+                    linje <- currentLine.Split ' '
+                    currentLine <- reader.ReadLine()
+                    for value in linje do
+                        // fjerner tomme elementer
+                        if value.Length <> 0 then
+                            cleandata <- cleandata @ [value]
+                    data <- data @ [(SphericalToCartesian((float cleandata.[1]), (float cleandata.[2]) ,(float cleandata.[3])))]
+                ()
             else
                 ()
-        // gem i planet
         this.setRoute(data)
-        //printfn "%A" data      // clean data gemmes korrekt, men "data" virker ikke
         reader.Close()
 
 
@@ -108,7 +110,8 @@ type planet() =
 let Earth = new planet()
 Earth.loadDataFromFile("Earth.txt")
 
-Earth.showRoute()
+//Earth.showRoute()
 //Earth.calculateSpeed()
 printfn "testfunk"
+
 Earth.test()
