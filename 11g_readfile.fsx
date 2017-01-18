@@ -21,8 +21,8 @@ end
 
 
 
-let scale = 1.0
-// convert coordiantes to cartesian
+let scale = 1.0 //Scale incase the model needs resizing.
+
 
 let SphericalToCartesian (long:float, lat:float, r:float) =
     let degToRad (deg:float) =
@@ -44,29 +44,30 @@ type planet() =
     member this.showRoute() =
         for vector in route do
             printfn "%A" (vector.tupleConvert())
-(*
+
     member this.calculateStartSpeed() =
         match (route.[pos], route.[pos+1]) with
         | (vector1: Vector, vector2: Vector) -> vector2 - vector1
 
     member this.acceleration (t: float)=
         let position: Vector = this.position(t)
-        let value = 2.9591/(pown (position.absoluteVal()) 3)
+        let value = 0.0002959122082322128/(pown (position.absoluteVal()) 3)
         value * position
 
     member this.position (t:float) =
         match t with
-        | y when y <0.0 -> route.[0]
+        | y when y <= 0.0 -> route.[0]
         | x -> this.position(t-delta) + (delta*this.velocity(t-delta))
 
     member this.velocity (t:float) =
         match t with
-        | 0.0 -> this.calculateStartSpeed()
-        | x -> this.velocity(t-delta) + (delta*this.position(t-delta))
+        | y when y <= 0.0 -> this.calculateStartSpeed()
+        | x -> this.velocity(t-delta) + (delta*this.acceleration(t-delta))
 
-*)
-       // bestem afstand her
+
     member this.test() =
+        printfn "%A \n%A" (this.position(0.0).tupleConvert()) (route.[0].tupleConvert())
+        printfn "%A \n%A" (this.position(1.0).tupleConvert()) (route.[1].tupleConvert())
         printfn "%A" (route.Length)
         printfn "%A\n%A\n%A\n%A" (route.[0].tupleConvert()) (route.[90].tupleConvert()) (route.[180].tupleConvert()) (route.[270].tupleConvert())
 
